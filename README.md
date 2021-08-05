@@ -7,5 +7,5 @@ Steps of usage:
    1. Make desired changes in the marked section
    2. Run step1.py
 2. Open step2.py
-   1. Change saved file name and run options where marked
+   1. Change saved file name and run options where marked. Make sure the pairList matches the pairList in step1.py.
    2. Run step2.py
