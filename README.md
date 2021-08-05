@@ -4,7 +4,7 @@
 Steps of usage:
 
 0. Clone this repository into the T<font size = 1>R</font>ENTo folder so that it is in the same level as the build, doc, and src folders.
-   1. how to get T<font size = 1>R</font>ENTo: http://qcd.phy.duke.edu/trento/
+   1. How to get T<font size = 1>R</font>ENTo: http://qcd.phy.duke.edu/trento/
 1. In the TrentoOptimizer folder, open step1.py
    1. Make desired changes in the marked section
    2. Run step1.py
