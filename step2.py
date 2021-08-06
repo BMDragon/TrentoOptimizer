@@ -22,8 +22,10 @@ folderName = "./2to16/"
 emulatorGraphs = True
 posteriorGraphs = True
 
-# DO NOT MAKE CHANGES BELOW #
-##################################################
+# Feel free to change the integration method on line 190)
+
+# DO NOT MAKE CHANGES BELOW (except line 190 and print statements) #
+####################################################################
 
 
 def do_something(bb):
@@ -48,7 +50,6 @@ def do_something(bb):
 
     ### Make emulator for each observable ###
     emul_d = {}
-
     for nn in range(len(obsTruths)):
         # Kernels
         k0 = 1. * kernels.RBF(
@@ -66,12 +67,9 @@ def do_something(bb):
         )
 
         kernel = (k0 + k2)
-
         nrestarts = 10
-
-        emulator_design_pts_value = np.array(desPts)  # .tolist()
-
-        emulator_obs_mean_value = np.array(observables[:, nn])  # .tolist()
+        emulator_design_pts_value = np.array(desPts)
+        emulator_obs_mean_value = np.array(observables[:, nn])
 
         # Fit a GP (optimize the kernel hyperparameters) to each PC.
         gaussian_process = GPR(
@@ -117,10 +115,10 @@ def do_something(bb):
                         val = (paramMins[rr] + paramMaxs[rr]) / 2
                         ranges = np.append(ranges, np.linspace(val, val, 50).reshape((1, 50)), axis=0)
                     else:
-                        ranges = np.append(ranges, np.linspace(paramMins[rr], paramMaxs[rr], 50).reshape((1, 50)), axis=0)
+                        ranges = np.append(ranges, np.linspace(paramMins[rr],
+                                                               paramMaxs[rr], 50).reshape((1, 50)), axis=0)
 
                 param_value_array = np.transpose(ranges[1:, :])
-
                 z_list, z_list_uncert = gaussian_process.predict(param_value_array, return_std=True)
 
                 # Plot design points
@@ -174,7 +172,7 @@ def do_something(bb):
     def posterior(*params):
         return prior() * likelihood(np.array([*params]))
 
-    # Compute the posterior for a range of values of the parameter "x"
+    # Compute the posterior, evidence, and AIC #
     div = totDesPoints
     if totDesPoints < 50:
         div = 50
@@ -232,5 +230,6 @@ def do_something(bb):
         plt.show()
 
 
+# Use multiprocessing to make the script run faster
 pool = mp.Pool()
 pool.map(do_something, range(len(pairList)))
