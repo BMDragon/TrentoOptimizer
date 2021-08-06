@@ -16,8 +16,9 @@ warnings.filterwarnings('ignore')
 
 
 # Make Changes Here #
-pairList = np.array([(8, 8192), (16, 4096), (32, 2048), (64, 1024)])
-folderName = "./test/"
+pairList = np.array([(8, 8192), (16, 4096), (32, 2048), (64, 1024), (128, 512), (256, 256),
+                     (512, 128), (1024, 64), (2048, 32)])
+folderName = "./2to16/"
 emulatorGraphs = True
 posteriorGraphs = True
 
