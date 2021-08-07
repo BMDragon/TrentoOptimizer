@@ -19,8 +19,8 @@ warnings.filterwarnings('ignore')
 pairList = np.array([(8, 8192), (16, 4096), (32, 2048), (64, 1024), (128, 512), (256, 256),
                      (512, 128), (1024, 64), (2048, 32)])
 folderName = "./2to16/"
-emulatorGraphs = True
-posteriorGraphs = True
+emulatorGraphs = False
+posteriorGraphs = False
 
 # Feel free to change the integration method on line 190)
 
@@ -137,21 +137,24 @@ def do_something(bb):
     print(str(pairList[bb]) + " emulators trained")
 
     ### Compute the Posterior ###
-    # We assume uniform priors for this example
-    # Here 'x' is the only model parameter
+    # We assume uniform priors (integral across the whole parameter space should = 1)
 
     def prior():
-        return 1
+        dims = np.array([paramMaxs[vv] - paramMins[vv] for vv in range(len(paramMins))])
+        area = np.prod(dims)
+        return 1.0/area
 
     # Under the approximations that we're using, the posterior is
-    # exp(-1/2*\sum_{observables, pT}
-    # (model(observable,pT)-data(observable,pT))^2/(model_err(observable,pT)^2+exp_err(observable,pT)^2)
+    # Likelihood = exp((-1/2)ln((2 pi)^n\prod_n{modelErr(observable, pT)^2 + dataErr(observable, pT)^2})
+    #                 - (1/2)\sum_{observables, pT}(model(observable, pT) - data(observable, pT))^2
+    #                 / (modelErr(observable, pT)^2 + dataErr(observable, pT)^2))
 
     # Here 'x' is the only model parameter
 
     def likelihood(params):
         res = 0.0
-        norm = 1.
+        norm = (2*np.pi)**len(obsTruths)
+
         # Sum over observables
         for xx in range(len(obsTruths)):
             # Function that returns the value of an observable
@@ -164,10 +167,10 @@ def do_something(bb):
 
             cov = (tmp_model_uncert * tmp_model_uncert + tmp_data_uncert * tmp_data_uncert)
             res += np.power(tmp_model_mean - tmp_data_mean, 2) / cov
-            norm *= 1 / np.sqrt(cov.astype('float'))
+            norm *= cov
         res *= -0.5
-        e = 2.71828182845904523536
-        return norm * e ** res
+
+        return (norm ** -0.5) * (np.e ** res)
 
     def posterior(*params):
         return prior() * likelihood(np.array([*params]))
@@ -195,8 +198,8 @@ def do_something(bb):
         return -1*posterior(*params[0])
 
     maxPostPar = opt.fmin(minPost, paramTruths)
-    maxPost = float(posterior(*maxPostPar)) / vol1
-    AIC = -2 * np.log(maxPost) + 2*len(paramMins)
+    maxLike = float(likelihood(maxPostPar))
+    AIC = -2 * np.log(maxLike) + 2*len(paramMins)
 
     subtitle = "NormP: " + str(normish) + ", AIC: " + str(AIC)
 
